@@ -1,8 +1,8 @@
 import { FastifyInstance } from "fastify";
-import { userRoutes } from "./userRoutes";
-import { dataRoutes } from "./dataRoutes";
+import { checkRoutes } from "./check";
+import { validationRoutes } from "./validateTransaction";
 
-export async function allRoutes(fastify: FastifyInstance){
-    fastify.register(userRoutes);
-    fastify.register(dataRoutes);
+export async function routes(fastify: FastifyInstance){
+    fastify.register(checkRoutes);
+    fastify.register(validationRoutes);
 }

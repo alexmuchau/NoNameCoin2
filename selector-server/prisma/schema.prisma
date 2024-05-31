@@ -14,15 +14,21 @@ datasource db {
 }
 
 model Validator {
-  validator_id      String @id @default(uuid())
-  validator_address String @unique
-  host              String
-  flag              String
-  validator_state   String
+  validator_id      String         @id @default(uuid())
+  validator_address String         @unique
+  host              String?
+  flag              Int            @default(0)
+  validator_state   ValidatorState @default(INACTIVE)
 
   address Address @relation(fields: [validator_address], references: [address])
 
   validator_transactions ValidatorTransaction[]
+}
+
+enum ValidatorState {
+  INACTIVE
+  VALIDATING
+  FREE
 }
 
 model Address {
@@ -36,13 +42,13 @@ model Address {
 }
 
 model Transaction {
-  trans_id         String   @id @default(uuid())
+  trans_id         String           @id @default(uuid())
   sender_address   String
   receiver_address String
   trans_coins      Float
   trans_tax        Float
   trans_timestamp  DateTime
-  trans_state      String
+  trans_state      TransactionState @default(NOT_STARTED)
 
   sender   Address @relation("sender", fields: [sender_address], references: [address])
   receiver Address @relation("receiver", fields: [receiver_address], references: [address])
@@ -50,14 +56,28 @@ model Transaction {
   validators_transaction ValidatorTransaction[]
 }
 
+enum TransactionState {
+  NOT_STARTED
+  VALIDATING
+  DENIED
+  APPROVED
+}
+
 model ValidatorTransaction {
   trans_id      String
   validator_id  String
-  validator_tax Float
-  validation    String
+  validator_tax Float?
+  validation    ValidationState @default(IN_PROGRESS)
 
   transaction Transaction @relation(fields: [trans_id], references: [trans_id])
   validator   Validator   @relation(fields: [validator_id], references: [validator_id])
 
   @@id([trans_id, validator_id])
+}
+
+enum ValidationState {
+  FAILED
+  IN_PROGRESS
+  APPROVED
+  DENIED
 }

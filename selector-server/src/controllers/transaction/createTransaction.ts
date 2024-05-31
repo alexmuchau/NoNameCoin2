@@ -1,8 +1,31 @@
 import { prisma } from "../../../prisma/prisma"
-import { selectValidators } from "../seletor/selectValidators"
+import { ReducedValidatorsType, selectValidators } from "../seletor/selectValidators"
 
-async function validateTransaction(transaction: any) {
-    /// to-do
+async function validateTransaction(transaction: any, validators: ReducedValidatorsType[]) {
+    for (const validator of validators) {
+        fetch(`http://localhost:${validator.host}/trans`, {
+            method: 'POST',
+            headers: {
+                'content-type': 'application/json;charset=UTF-8',
+            },
+            body: JSON.stringify({
+                transaction: transaction
+            })
+        })
+    }
+}
+
+async function createValidatorTransactions(validators: ReducedValidatorsType[], transId:string) {
+    const validatorTransactions = await prisma.validatorTransaction.createMany({
+        data: validators.map((validator) => (
+            {
+                trans_id: transId,
+                validator_id: validator.validatorId
+            }
+        ))
+    })
+    
+    return validatorTransactions
 }
 
 export async function createTransaction(req: any, res: any) {
@@ -17,11 +40,26 @@ export async function createTransaction(req: any, res: any) {
             trans_coins: trans_coins,
             trans_tax: trans_tax,
             trans_timestamp: trans_timestamp,
-            trans_state: 'Not started'
+            trans_state: "NOT_STARTED"
         }
     })
     
-    selectValidators()
+    const validators = await selectValidators()
+    if (validators.length == 0) {
+        res.status(500).send({error: 'Error when creating relations'})
+        return
+    }
+    const validatorTransactions = await createValidatorTransactions(validators, transaction.trans_id)
     
-    const validate = validateTransaction(req)
+    if (validatorTransactions.count < 3) {
+        res.status(500).send({error: 'Error when creating relations'})
+        return
+    }
+    
+    validateTransaction(transaction, validators)
+    
+    res.send({
+        message: `Validating transaction! Validators: ${validators}`,
+        transaction: transaction
+    })
 }

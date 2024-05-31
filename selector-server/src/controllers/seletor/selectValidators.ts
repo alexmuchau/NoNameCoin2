@@ -1,6 +1,12 @@
 import { prisma } from "../../../prisma/prisma"
 
-function getWeights(validators:{validatorId: string, coinsInStack: number}[], sum_stacked_coins:number) {
+export interface ReducedValidatorsType {
+    validatorId: string,
+    coinsInStack: number,
+    host: string
+}
+
+function getWeights(validators:ReducedValidatorsType[], sum_stacked_coins:number) {
     let diff = 0
     let numDiff = 0
     let qtdNum = validators.length
@@ -18,11 +24,21 @@ function getWeights(validators:{validatorId: string, coinsInStack: number}[], su
             diff -= numDiff
             
             sumWeights += 20
-            return {validatorId: validator.validatorId, weight: 20, coinsInStack: validator.coinsInStack}
+            return {
+                validatorId: validator.validatorId,
+                weight: 20,
+                coinsInStack: validator.coinsInStack,
+                host: validator.host
+            }
         }
         
         sumWeights += weight
-        return {validatorId: validator.validatorId, weight: weight, coinsInStack: validator.coinsInStack}
+        return {
+            validatorId: validator.validatorId,
+            weight: weight,
+            coinsInStack: validator.coinsInStack,
+            host: validator.host
+        }
     })
     
     console.log(weights.length)
@@ -34,7 +50,7 @@ function getWeights(validators:{validatorId: string, coinsInStack: number}[], su
 export async function selectValidators() {
     const freeValidators = await prisma.validator.findMany({
         where: {
-            validator_state: 'Free'
+            validator_state: "FREE"
         },
         include: {
             address: {
@@ -50,17 +66,19 @@ export async function selectValidators() {
         }
     })
     
-    
-    
     if (freeValidators.length >= 3) {
         var sum_stacked_coins = 0
-        let reducedValidators = freeValidators.map((validator) => {
+        let reducedValidators:ReducedValidatorsType[] = freeValidators.map((validator) => {
             sum_stacked_coins += validator.address.coins_in_stack
             
-            return {validatorId: validator.validator_id, coinsInStack: validator.address.coins_in_stack}
+            return {
+                validatorId: validator.validator_id,
+                coinsInStack: validator.address.coins_in_stack,
+                host: validator.host!
+            }
         })
         
-        var {weights, sumWeights} = getWeights(reducedValidators, sum_stacked_coins, 0)
+        var {weights, sumWeights} = getWeights(reducedValidators, sum_stacked_coins)
         
         var validators = []
         for (let numValidator = 0; numValidator < 5; numValidator++) {
@@ -76,7 +94,7 @@ export async function selectValidators() {
                     continue
                 }
                 
-                validators.push(weight.validatorId)
+                validators.push(reducedValidators.find((el) => el.validatorId == weight.validatorId)!)
                 
                 sum_stacked_coins = sum_stacked_coins - weight.coinsInStack
                 var {weights, sumWeights} = getWeights(weights.filter((i) => i.validatorId != weight.validatorId), sum_stacked_coins)

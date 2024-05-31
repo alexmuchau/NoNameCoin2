@@ -1,15 +1,9 @@
 import Fastify from 'fastify'
-import { allRoutes } from './routes/allRoutes';
-import fastifyCors from '@fastify/cors';
+import { routes } from './routes/routes';
 
 export default function createServer(){
     const fastify = Fastify({logger: true})
-    fastify.register(allRoutes)
-    fastify.register(fastifyCors, {
-    origin: '*',
-    methods: ['GET', 'PUT', 'POST'],
-    allowedHeaders: ['Content-Type', 'Authorization']
-  })
+    fastify.register(routes)
 
     return fastify;
 }
