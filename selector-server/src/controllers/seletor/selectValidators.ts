@@ -41,39 +41,27 @@ function getWeights(validators:ReducedValidatorsType[], sum_stacked_coins:number
         }
     })
     
-    console.log(weights.length)
-    console.log(weights)
-    console.log('')
     return {weights: weights, sumWeights: sumWeights}
 }
 
 export async function selectValidators() {
     const freeValidators = await prisma.validator.findMany({
         where: {
-            validator_state: "INACTIVE"
-        },
-        include: {
-            address: {
-                select: {
-                    coins_in_stack: true
-                }
-            }
+            validator_state: "FREE"
         },
         orderBy: {
-            address: {
-                coins_in_stack: "desc"
-            }
+            coins_in_stack: "desc"
         }
     })
     
     if (freeValidators.length >= 3) {
         var sum_stacked_coins = 0
         let reducedValidators:ReducedValidatorsType[] = freeValidators.map((validator) => {
-            sum_stacked_coins += validator.address.coins_in_stack
+            sum_stacked_coins += validator.coins_in_stack
             
             return {
                 validatorId: validator.validator_id,
-                coinsInStack: validator.address.coins_in_stack,
+                coinsInStack: validator.coins_in_stack,
                 host: validator.host!
             }
         })

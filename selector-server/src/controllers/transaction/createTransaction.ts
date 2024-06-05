@@ -44,16 +44,14 @@ export async function createTransaction(req: any, res: any) {
             trans_state: "NOT_STARTED"
         },
         include: {
-            receiver: {
-                select: {
-                    address: true,
-                    coins_in_stock: true
-                }
-            },
+            receiver: true,
             sender: {
-                select: {
-                    address: true,
-                    coins_in_stock: true
+                include: {
+                    _count: {
+                        select: {
+                            sender_transactions: true
+                        }
+                    }
                 }
             },
         }
@@ -61,7 +59,7 @@ export async function createTransaction(req: any, res: any) {
     
     const validators = await selectValidators()
     if (validators.length == 0) {
-        res.status(500).send({error: 'Error when creating relations'})
+        res.status(500).send({error: 'Error when select validators'})
         return
     }
     const validatorTransactions = await createValidatorTransactions(validators, transaction.trans_id)
@@ -74,7 +72,7 @@ export async function createTransaction(req: any, res: any) {
     validateTransaction(transaction, validators)
     
     res.send({
-        message: `Validating transaction! Validators: ${validators}`,
+        // message: `Validating transaction! Validators: ${validators}`,
         transaction: transaction
     })
 }
