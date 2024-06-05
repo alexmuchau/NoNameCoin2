@@ -1,11 +1,11 @@
 import { prisma } from "../../../prisma/prisma";
 
 export async function createValidator(req: any, res: any) {
-    const { address } = req.body
+    const { stackedValue } = req.body
     
     const validator = await prisma.validator.create({
         data: {
-            validator_address: address,
+            coins_in_stack: stackedValue,
             flag: 0,
         }
     })

@@ -1,18 +1,23 @@
-async function awaitTimeout(ms: number) {
-    setTimeout(() => {
-        return
-    }, ms)
-}
+import { MY_TIME } from "../../app"
 
 export async function validateTransaction(req: any, res: any) {
-    let count = 0
-    while (1==1) {
-        count += 1
-        console.log(count)
-        if (count > 10000000000000) {
-            break
-        }
+    const {
+        sender,
+        receiver,
+        trans_coins,
+        trans_tax,
+        trans_timestamp,
+        trans_state
+    } = req.body
+    
+    if (trans_coins + trans_tax > sender.coins_in_stock) {
+        
     }
+    
+    if (trans_timestamp < MY_TIME) {
+        
+    }
+    
     res.send({ok: 'Validating'})
 }
 

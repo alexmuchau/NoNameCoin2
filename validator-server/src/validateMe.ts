@@ -5,7 +5,7 @@ export async function validateMe(address:string, port:string) {
 			'content-type': 'application/json;charset=UTF-8',
 		},
         body: JSON.stringify({
-            address: address,
+            validator_id: address,
             port: port
         })
     })

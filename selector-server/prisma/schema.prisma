@@ -14,13 +14,11 @@ datasource db {
 }
 
 model Validator {
-  validator_id      String         @id @default(uuid())
-  validator_address String         @unique
-  host              String?
-  flag              Int            @default(0)
-  validator_state   ValidatorState @default(INACTIVE)
-
-  address Address @relation(fields: [validator_address], references: [address])
+  validator_id    String         @id @default(uuid())
+  host            String?
+  flag            Int            @default(0)
+  coins_in_stack  Float          @default(0)
+  validator_state ValidatorState @default(INACTIVE)
 
   validator_transactions ValidatorTransaction[]
 }
@@ -34,9 +32,7 @@ enum ValidatorState {
 model Address {
   address        String @id
   coins_in_stock Float  @default(0)
-  coins_in_stack Float  @default(0)
 
-  validator             Validator?
   sender_transactions   Transaction[] @relation("sender")
   receiver_transactions Transaction[] @relation("receiver")
 }

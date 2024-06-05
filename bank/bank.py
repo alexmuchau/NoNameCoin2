@@ -18,7 +18,7 @@ import random
 # res = requests.post('http://localhost/selector', json=payload, headers=headers)
 
 addresses = requests.get('http://localhost:4100/address').json()
-
+print(addresses)
 for address in addresses:
     choose = random.randint(0, 10)
     

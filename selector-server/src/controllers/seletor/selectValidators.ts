@@ -42,7 +42,7 @@ function getWeights(validators:ReducedValidatorsType[], sum_stacked_coins:number
     })
     
     console.log(weights.length)
-    console.log(sumWeights)
+    console.log(weights)
     console.log('')
     return {weights: weights, sumWeights: sumWeights}
 }
@@ -50,7 +50,7 @@ function getWeights(validators:ReducedValidatorsType[], sum_stacked_coins:number
 export async function selectValidators() {
     const freeValidators = await prisma.validator.findMany({
         where: {
-            validator_state: "FREE"
+            validator_state: "INACTIVE"
         },
         include: {
             address: {

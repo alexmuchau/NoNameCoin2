@@ -1,14 +1,12 @@
 import { prisma } from "../../../prisma/prisma"
 
 export async function checkValidator(req:any, res:any) {
-    const { address, port } = req.body
+    const { validator_id, port } = req.body
     
     // Acha no banco
     const validator = await prisma.validator.findFirst({
         where: {
-            address: {
-                address: address
-            }
+            validator_id: validator_id
         }
     })
     
@@ -61,7 +59,8 @@ export async function checkValidator(req:any, res:any) {
             validator_id: validator.validator_id
         },
         data: {
-            host: port
+            host: port,
+            validator_state: "FREE"
         }
     })
     

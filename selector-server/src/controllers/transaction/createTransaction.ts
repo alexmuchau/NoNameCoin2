@@ -29,18 +29,33 @@ async function createValidatorTransactions(validators: ReducedValidatorsType[], 
 }
 
 export async function createTransaction(req: any, res: any) {
-    const { sender_address, receiver_address, trans_coins, trans_timestamp } = req.body
+    const { remetente, recebedor, valor, horario } = req.body
     
-    const trans_tax = trans_coins * 1.5
+    const trans_tax = valor * 0.015
+    const trans_timestamp = new Date(horario)
     
     const transaction = await prisma.transaction.create({
         data: {
-            sender_address: sender_address,
-            receiver_address: receiver_address,
-            trans_coins: trans_coins,
+            sender_address: remetente,
+            receiver_address: recebedor,
+            trans_coins: valor,
             trans_tax: trans_tax,
             trans_timestamp: trans_timestamp,
             trans_state: "NOT_STARTED"
+        },
+        include: {
+            receiver: {
+                select: {
+                    address: true,
+                    coins_in_stock: true
+                }
+            },
+            sender: {
+                select: {
+                    address: true,
+                    coins_in_stock: true
+                }
+            },
         }
     })
     
