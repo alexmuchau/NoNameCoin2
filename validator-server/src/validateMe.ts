@@ -1,12 +1,11 @@
-export async function validateMe(address:string, port:string) {
-    const res = await fetch('http://localhost:4100/validador/check', {
+export async function validateMe(host:string) {
+    var res = await fetch('http://selector_server:4100/validador/check', {
         method: 'POST',
         headers: {
-			'content-type': 'application/json;charset=UTF-8',
-		},
+            'content-type': 'application/json;charset=UTF-8',
+        },
         body: JSON.stringify({
-            validator_id: address,
-            port: port
+            host: host
         })
     })
     

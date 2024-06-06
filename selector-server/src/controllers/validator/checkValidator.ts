@@ -1,12 +1,13 @@
 import { prisma } from "../../../prisma/prisma"
+import { createValidatorGen } from "./createValidator"
 
 export async function checkValidator(req:any, res:any) {
-    const { validator_id, port } = req.body
+    const { host } = req.body
     
     // Acha no banco
     const validator = await prisma.validator.findFirst({
         where: {
-            validator_id: validator_id
+            host: host
         }
     })
     
@@ -15,17 +16,18 @@ export async function checkValidator(req:any, res:any) {
         res.status(500).send({ ok: false })
         
         console.log('--------------------')
-        console.log("Validador nao existe no banco")
+        console.log("Validador nao existe no banco, criando...")
         console.log('--------------------')
+        
+        const validator = createValidatorGen(host, 0)
+        res.status(200).send(validator)
         return
     }
     
-    // Acha no banco, algum validador que esteja com a mesma PORT
+    // Acha no banco, algum validador que esteja com o mesmo HOST
     const portValidator = await prisma.validator.findFirst({
         where: {
-            host: {
-                contains: port
-            }
+            host: host
         }
     })
     
@@ -59,7 +61,6 @@ export async function checkValidator(req:any, res:any) {
             validator_id: validator.validator_id
         },
         data: {
-            host: port,
             validator_state: "FREE"
         }
     })

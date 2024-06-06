@@ -1,0 +1,197 @@
+version: '3.9'
+
+services:
+  selector_server:
+    image: 'selector-server:v1'
+    ports:
+      - '4100:4100'
+    environment:
+      DATABASE_URL: 'postgresql://postgres:root@database:5432/noNameCoin?schema=public'
+    command: sh -c "npx prisma db push && npm run dev"
+    depends_on:
+      - database
+    
+      
+  database:
+    image: 'postgres'
+    ports:
+      - '5432:5432'
+    environment:
+      POSTGRES_USER: 'postgres'
+      POSTGRES_PASSWORD: 'root'
+    volumes:
+      - noNameCoinVolume:/home/noNameCoinDB
+      
+  validator_server_1:
+    image: 'validator-server:v1'
+    ports:
+      - '4101:4101'
+    environment:
+      HOST: 'validator_server_01:4102'
+    depends_on:
+      - selector_server
+      
+  validator_server_02:
+    image: 'validator-server:v1'
+    ports:
+      - '4102:4101'
+    environment:
+      HOST: 'validator_server_02:4102'
+    depends_on:
+      - selector_server
+
+  validator_server_03:
+    image: 'validator-server:v1'
+    ports:
+      - '4103:4101'
+    environment:
+      HOST: 'validator_server_03:4103'
+    depends_on:
+      - selector_server
+
+  validator_server_04:
+    image: 'validator-server:v1'
+    ports:
+      - '4104:4101'
+    environment:
+      HOST: 'validator_server_04:4104'
+    depends_on:
+      - selector_server
+
+  validator_server_05:
+    image: 'validator-server:v1'
+    ports:
+      - '4105:4101'
+    environment:
+      HOST: 'validator_server_05:4105'
+    depends_on:
+      - selector_server
+
+  validator_server_06:
+    image: 'validator-server:v1'
+    ports:
+      - '4106:4101'
+    environment:
+      HOST: 'validator_server_06:4106'
+    depends_on:
+      - selector_server
+
+  validator_server_07:
+    image: 'validator-server:v1'
+    ports:
+      - '4107:4101'
+    environment:
+      HOST: 'validator_server_07:4107'
+    depends_on:
+      - selector_server
+
+  validator_server_08:
+    image: 'validator-server:v1'
+    ports:
+      - '4108:4101'
+    environment:
+      HOST: 'validator_server_08:4108'
+    depends_on:
+      - selector_server
+
+  validator_server_09:
+    image: 'validator-server:v1'
+    ports:
+      - '4109:4101'
+    environment:
+      HOST: 'validator_server_09:4109'
+    depends_on:
+      - selector_server
+
+  validator_server_10:
+    image: 'validator-server:v1'
+    ports:
+      - '4110:4101'
+    environment:
+      HOST: 'validator_server_10:4110'
+    depends_on:
+      - selector_server
+
+  validator_server_11:
+    image: 'validator-server:v1'
+    ports:
+      - '4111:4101'
+    environment:
+      HOST: 'validator_server_11:4111'
+    depends_on:
+      - selector_server
+
+  validator_server_12:
+    image: 'validator-server:v1'
+    ports:
+      - '4112:4101'
+    environment:
+      HOST: 'validator_server_12:4112'
+    depends_on:
+      - selector_server
+
+  validator_server_13:
+    image: 'validator-server:v1'
+    ports:
+      - '4113:4101'
+    environment:
+      HOST: 'validator_server_13:4113'
+    depends_on:
+      - selector_server
+
+  validator_server_14:
+    image: 'validator-server:v1'
+    ports:
+      - '4114:4101'
+    environment:
+      HOST: 'validator_server_14:4114'
+    depends_on:
+      - selector_server
+
+  validator_server_15:
+    image: 'validator-server:v1'
+    ports:
+      - '4115:4101'
+    environment:
+      HOST: 'validator_server_15:4115'
+    depends_on:
+      - selector_server
+
+  validator_server_16:
+    image: 'validator-server:v1'
+    ports:
+      - '4116:4101'
+    environment:
+      HOST: 'validator_server_16:4116'
+    depends_on:
+      - selector_server
+
+  validator_server_17:
+    image: 'validator-server:v1'
+    ports:
+      - '4117:4101'
+    environment:
+      HOST: 'validator_server_17:4117'
+    depends_on:
+      - selector_server
+
+  validator_server_18:
+    image: 'validator-server:v1'
+    ports:
+      - '4118:4101'
+    environment:
+      HOST: 'validator_server_18:4118'
+    depends_on:
+      - selector_server
+
+  validator_server_19:
+    image: 'validator-server:v1'
+    ports:
+      - '4119:4101'
+    environment:
+      HOST: 'validator_server_19:4119'
+    depends_on:
+      - selector_server
+
+volumes:
+  noNameCoinVolume:
