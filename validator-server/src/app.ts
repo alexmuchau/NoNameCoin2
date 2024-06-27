@@ -17,13 +17,16 @@ async function checkValidator(host:string) {
         if (!ok) {
             shutdownServer()
             console.log('Validador não está no modelo perfeito!')
+        } else {
+            initValidator()
+            console.log('Validador está no modelo perfeito!')
         }
-    }, 30000)
+    }, 20000)
 }
 
 function initValidator() {
     const app = createServer()
-    app.listen({host: '0.0.0.0', port: 4100}, (err)=>{
+    app.listen({host: '0.0.0.0', port: 4101}, (err)=>{
         if(err){
             console.log(err); 
         }
@@ -33,11 +36,7 @@ function initValidator() {
 }
 
 export function shutdownServer() {
-    app.close(() => {
-        console.log('Closing server')
-        process.exit(0)
-    })
+    process.exit(0)
 }
 
-export const app = initValidator()
 checkValidator(HOST)

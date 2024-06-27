@@ -1,3 +1,3 @@
 export function checkMe(req: any, res: any) {
-    // to-do
+    res.status(200).send({message: 'I am alive'})
 }

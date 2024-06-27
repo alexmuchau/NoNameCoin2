@@ -12,8 +12,7 @@ export async function getTransactions(req: any, res: any) {
     
     const transactions = await prisma.transaction.findMany({
         include: {
-            validators_transaction: {
-            },
+            validators_transaction: {},
             sender: {
                 select: {
                     address: true
@@ -25,12 +24,6 @@ export async function getTransactions(req: any, res: any) {
                 }
             },
             _count: true
-        },
-        where: {
-            OR: [
-                { trans_state: "APPROVED" },
-                { trans_state: "DENIED" }
-            ]
         },
         take: filters.maxTransactions
     })

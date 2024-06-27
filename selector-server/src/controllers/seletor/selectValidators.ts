@@ -71,10 +71,8 @@ export async function selectValidators() {
         var validators = []
         for (let numValidator = 0; numValidator < 5; numValidator++) {
             const randomInt = Math.random() * sumWeights
-            console.log('Numero sorteado: ' + randomInt)
             
             let sumRandom = 0
-            console.log('Encontrando numero em weights.length: ' + weights.length)
             for (const weight of weights) {
                 const diff = randomInt - (weight.weight + sumRandom)
                 if (diff < 0) {

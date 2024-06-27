@@ -13,13 +13,21 @@ export async function checkValidator(req:any, res:any) {
     
     // Caso validador não esteja cadastrado, ERRO
     if (!validator) {
-        res.status(500).send({ ok: false })
-        
         console.log('--------------------')
         console.log("Validador nao existe no banco, criando...")
         console.log('--------------------')
         
-        const validator = createValidatorGen(host, 0)
+        const validator = await createValidatorGen(host, 0)
+        
+        await prisma.validator.update({
+            where: {
+                validator_id: validator.validator_id
+            },
+            data: {
+                validator_state: "FREE"
+            }
+        })
+        
         res.status(200).send(validator)
         return
     }
