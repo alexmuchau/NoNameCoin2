@@ -1,0 +1,15 @@
+version: '3.9'
+
+services:
+  selector_server:
+    image: 'bank:v1'
+    ports:
+      - '3000:3000'
+    command: sh -c "npm start"
+    networks:
+      - noNameCoinNetwork
+      
+networks:
+  noNameCoinNetwork:
+    driver: bridge
+  
