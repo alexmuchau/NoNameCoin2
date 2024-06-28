@@ -1,3 +1,4 @@
+import { checkHour } from "./checkHour";
 import { checkValidators } from "./controllers/seletor/checkValidators";
 import createServer from "./server";
 
@@ -10,6 +11,7 @@ setInterval(() => {
 
 app.listen({host: '0.0.0.0', port}, (err)=>{
     checkValidators()
+    checkHour()
     
     if(err){
         console.log(err); 
