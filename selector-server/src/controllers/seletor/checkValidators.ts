@@ -1,5 +1,23 @@
 import { prisma } from "../../../prisma/prisma";
 
+export async function checkValidator(host: string) {
+    try {
+        const check = await fetch(`http://${host}/validator/check`)
+        
+        if (check.status != 200) {
+            console.log(`Validador: ${host} -> ERRO!`)
+            return false
+        }
+        
+        console.log(`Validador: ${host} -> Tudo OK!`)
+        return true
+    } catch (error) {
+        console.log(`Validador: ${host} -> OFFLINE!`)
+        
+        return false
+    }
+}
+
 export async function checkValidators() {
     console.log('--------------------')
     console.log("Checando validadores...\n")
@@ -12,17 +30,8 @@ export async function checkValidators() {
     let toUpdateValidators = []
     
     for (const validator of validators) {
-        try {
-            const check = await fetch(`http://${validator.host}/validator/check`)
-            
-            if (check.status != 200) {
-                toUpdateValidators.push(validator.validator_id)
-            }
-        } catch (error) {
-            console.log(error)
-            
-            toUpdateValidators.push(validator.validator_id)
-        }
+        const isOnline = await checkValidator(validator.host!)
+        !isOnline && toUpdateValidators.push(validator.validator_id)
     }
     
     if (toUpdateValidators.length > 0) {

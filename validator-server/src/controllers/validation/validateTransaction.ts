@@ -20,27 +20,34 @@ interface AddressProps {
   coins_in_stock: number;
 }
 
-// export async function sendValidation(trans_id:string, validator_id:string, validation: 'APPROVED' | 'DENIED') {
-//     await fetch('http://selector_server:4100/trans/validation', {
-//         method: 'POST',
-//         headers: {
-//             'content-type': 'application/json;charset=UTF-8',
-//         },
-//         body: JSON.stringify({
-//             trans_id: trans_id,
-//             validator_id: validator_id,
-//             validation: validation
-//         })
-//     })
-// }
+export async function sendValidation(trans_id:string, validator_id:string, validation: 'APPROVED' | 'DENIED') {
+    await fetch('http://selector_server:4100/trans/validation', {
+        method: 'POST',
+        headers: {
+            'content-type': 'application/json;charset=UTF-8',
+        },
+        body: JSON.stringify({
+            trans_id: trans_id,
+            validator_id: validator_id,
+            validation: validation
+        })
+    })
+}
 
 export async function validateTransaction(req: any, res: any) {
   const transaction: TransactionProps = req.body.transaction;
   const validatorId: string = req.body.validatorId;
   const senderTransactionsCount: number = req.body.senderTransactionsCount;
 
-  printHeader(`Validando transação ${transaction.trans_id}...`);
-
+  const randomTimeout = Math.random() * 150000000000;
+  let i = 0
+  
+  printHeader(`Validando transação ${transaction.trans_id}... ${randomTimeout}`);
+  
+  // while (i < randomTimeout) {
+  //   i++
+  // }
+  
   if (senderTransactionsCount > 1000) {
     // await sendValidation(transaction.trans_id, validatorId, "DENIED")
     res.send({
@@ -83,5 +90,6 @@ export async function validateTransaction(req: any, res: any) {
     transId: transaction.trans_id,
     validatorId: validatorId,
   });
+
   // await sendValidation(transaction.trans_id, validatorId, "APPROVED")
 }

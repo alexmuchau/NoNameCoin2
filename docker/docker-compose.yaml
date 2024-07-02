@@ -7,7 +7,7 @@ services:
       - '4100:4100'
     environment:
       DATABASE_URL: 'postgresql://postgres:root@database:5432/noNameCoin?schema=public'
-    command: sh -c "date -s \"$(date -d '10 minutes ago' +'%Y-%m-%d %H:%M:%S')\" && npx prisma db push && npm run dev"
+    command: sh -c "npx prisma db push && npm run start"
     networks:
       - noNameCoinNetwork
       

@@ -3,7 +3,6 @@ import { prisma } from "../../../prisma/prisma";
 export async function finishTransaction(
   transaction: any,
   validations: { APPROVED: string[]; DENIED: string[] },
-  validators: []
 ) {
   const mostValidation =
     validations.APPROVED.length > validations.DENIED.length
@@ -37,6 +36,17 @@ export async function finishTransaction(
       },
     },
   });
+  
+  await prisma.validator.updateMany({
+    where: {
+      validator_id: {
+        in: validations[mostValidation] || validations[minValidation],
+      },
+    },
+    data: {
+      validator_state: "FREE",
+    }
+  })
 
   if (mostValidation == "APPROVED") {
     // INCREMENT SUCCEEDED TRANS

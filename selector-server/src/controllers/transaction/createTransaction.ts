@@ -14,7 +14,18 @@ async function validateTransaction(
     APPROVED: [],
     DENIED: [],
   };
+  await prisma.validator.updateMany({
+    where: {
+      validator_id: {
+        in: validators.map((validator) => validator.validatorId),
+      },
+    },
+    data: {
+      validator_state: "VALIDATING",
+    }
+  })
   for (const validator of validators) {
+    
     await fetch(`http://${validator.host}/trans`, {
       method: "POST",
       headers: {
@@ -44,7 +55,8 @@ async function validateTransaction(
               validation: res.validation,
             },
           });
-
+          // console.log("\n\n===========================================================================")
+          // console.log("TAMANHO DE VALIDATIONS LENGTH" + validations['APPROVED'].length)
           validations[res.validation].push(res.validatorId);
         }
       );
@@ -54,7 +66,9 @@ async function validateTransaction(
     validators.length ==
     validations.APPROVED.length + validations.DENIED.length
   ) {
-    finishTransaction(transaction, validations, validators);
+    setTimeout(() => {
+      finishTransaction(transaction, validations);
+    }, 100000)
   }
 }
 

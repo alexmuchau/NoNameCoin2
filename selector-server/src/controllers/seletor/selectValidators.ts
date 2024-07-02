@@ -1,4 +1,5 @@
 import { prisma } from "../../../prisma/prisma";
+import { checkValidator } from "./checkValidators";
 
 export interface ReducedValidatorsType {
   validatorId: string;
@@ -48,7 +49,7 @@ function getWeights(
 }
 
 export async function selectValidators() {
-  const freeValidators = await prisma.validator.findMany({
+  let freeValidators = await prisma.validator.findMany({
     where: {
       validator_state: "FREE",
       AND: {
@@ -61,7 +62,29 @@ export async function selectValidators() {
       coins_in_stack: "desc",
     },
   });
-
+  
+  let minute_now = Date.now() + 1 * 60 * 1000
+  let now = Date.now()
+  
+  setInterval(async () => {
+    freeValidators = await prisma.validator.findMany({
+      where: {
+        validator_state: "FREE",
+        AND: {
+          flag: {
+            lt: 3,
+          },
+        },
+      },
+      orderBy: {
+        coins_in_stack: "desc",
+      },
+    });
+    
+    now = Date.now()
+    if (freeValidators.length >= 3 || minute_now > now) return
+  }, 10000)
+  
   if (freeValidators.length >= 3) {
     var sum_stacked_coins = 0;
     let reducedValidators: ReducedValidatorsType[] = freeValidators.map(
@@ -95,20 +118,25 @@ export async function selectValidators() {
       let sumRandom = 0;
       for (const weight of weights) {
         const diff = randomInt - (weight.weight + sumRandom);
-        if (diff < 0) {
+        if (diff >= 0) {
           sumRandom += weight.weight;
           continue;
         }
-
-        validators.push(
-          reducedValidators.find((el) => el.validatorId == weight.validatorId)!
-        );
-
+        
+        // Check if validator is online
+        const isOnline = await checkValidator(weight.host);
+        if (isOnline) {
+          validators.push(
+            reducedValidators.find((el) => el.validatorId == weight.validatorId)!
+          );
+        }
+        
         sum_stacked_coins = sum_stacked_coins - weight.coinsInStack;
         var { weights, sumWeights } = getWeights(
           weights.filter((i) => i.validatorId != weight.validatorId),
           sum_stacked_coins
         );
+        
         break;
       }
     }
