@@ -1,9 +1,10 @@
 # NoNameCoin
-*Trabalho Sistemas Distribuídos*
+
+_Trabalho Sistemas Distribuídos_
 
 ## Integrantes
+
 - Alex Muchau
 - Gabriel Pepe
-- Gustavo Berwanger
 
 docker build . -t validator-server:v1

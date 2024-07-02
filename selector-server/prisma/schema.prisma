@@ -19,6 +19,7 @@ model Validator {
   flag            Int            @default(0)
   coins_in_stack  Float          @default(0)
   validator_state ValidatorState @default(INACTIVE)
+  succeeded_trans Int            @default(0)
 
   validator_transactions ValidatorTransaction[]
 }

@@ -1,12 +1,14 @@
 {
   "dependencies": {
     "@fastify/cors": "^9.0.1",
+    "child_process": "^1.0.2",
     "fastify": "^4.27.0",
     "pg": "^8.11.5",
     "pg-hstore": "^2.3.4",
     "sequelize": "^6.37.3"
   },
   "devDependencies": {
+    "@types/node": "^20.14.9",
     "ts-node": "^10.9.2",
     "tsx": "^4.9.3",
     "typescript": "^5.4.5"
@@ -16,6 +18,7 @@
   "main": "index.js",
   "scripts": {
     "dev": "tsx watch src/app.ts",
+    "start": "tsx src/app.ts",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
@@ -23,4 +26,3 @@
   "license": "ISC",
   "description": ""
 }
-

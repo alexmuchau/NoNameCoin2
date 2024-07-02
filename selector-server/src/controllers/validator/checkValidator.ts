@@ -17,16 +17,7 @@ export async function checkValidator(req:any, res:any) {
         console.log("Validador nao existe no banco, criando...")
         console.log('--------------------')
         
-        const validator = await createValidatorGen(host, 0)
-        
-        await prisma.validator.update({
-            where: {
-                validator_id: validator.validator_id
-            },
-            data: {
-                validator_state: "FREE"
-            }
-        })
+        const validator = await createValidatorGen(host, 50, "FREE")
         
         res.status(200).send(validator)
         return
