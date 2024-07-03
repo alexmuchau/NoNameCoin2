@@ -48,45 +48,8 @@ function getWeights(
   return { weights: weights, sumWeights: sumWeights };
 }
 
-export async function selectValidators() {
-  let freeValidators = await prisma.validator.findMany({
-    where: {
-      validator_state: "FREE",
-      AND: {
-        flag: {
-          lt: 3,
-        },
-      },
-    },
-    orderBy: {
-      coins_in_stack: "desc",
-    },
-  });
-  
-  let minute_now = Date.now() + 1 * 60 * 1000
-  let now = Date.now()
-  
-  setInterval(async () => {
-    freeValidators = await prisma.validator.findMany({
-      where: {
-        validator_state: "FREE",
-        AND: {
-          flag: {
-            lt: 3,
-          },
-        },
-      },
-      orderBy: {
-        coins_in_stack: "desc",
-      },
-    });
-    
-    now = Date.now()
-    if (freeValidators.length >= 3 || minute_now > now) return
-  }, 10000)
-  
-  if (freeValidators.length >= 3) {
-    var sum_stacked_coins = 0;
+async function _selectValidators(freeValidators: any) {
+  var sum_stacked_coins = 0;
     let reducedValidators: ReducedValidatorsType[] = freeValidators.map(
       (validator: any) => {
         if (validator.flag == 1) {
@@ -142,9 +105,41 @@ export async function selectValidators() {
     }
 
     return validators;
+}
+
+export async function selectValidators(): Promise<ReducedValidatorsType[]> {
+  async function waitForValidators(attemptsLeft: number = 6): Promise<ReducedValidatorsType[]> {
+    // Attempt to find validators
+    let freeValidators = await prisma.validator.findMany({
+      where: {
+        validator_state: "FREE",
+        AND: {
+          flag: {
+            lt: 3,
+          },
+        },
+      },
+      orderBy: {
+        coins_in_stack: "desc",
+      },
+    });
+    
+    if (attemptsLeft <= 0) {
+      return []
+    }
+
+    // If enough validators are found or no attempts left, return them
+    if (freeValidators.length >= 3) {
+      // Process and return validators
+      return await _selectValidators(freeValidators)
+    } else {
+      // Wait for a bit before trying again
+      await new Promise(resolve => setTimeout(resolve, 10000)); // 10 seconds delay
+      return waitForValidators(attemptsLeft - 1); // Try again
+    }
   }
 
-  return [];
+  return waitForValidators(); // Start the recursive waiting process
 }
 
 export async function showSelectValidators(req: any, res: any) {

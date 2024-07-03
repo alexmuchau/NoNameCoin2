@@ -23,7 +23,9 @@ export async function checkValidators() {
     console.log("Checando validadores...\n")
     const validators = await prisma.validator.findMany({
         where: {
-            validator_state: "FREE"
+            validator_state: {
+                not: "INACTIVE"
+            }
         }
     })
     

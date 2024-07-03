@@ -10,10 +10,11 @@ async function validateTransaction(
   validators: ReducedValidatorsType[],
   senderTransactionsCount: number
 ) {
-  let validations: { APPROVED: string[]; DENIED: string[] } = {
-    APPROVED: [],
-    DENIED: [],
-  };
+  // let validations: { APPROVED: string[]; DENIED: string[] } = {
+  //   APPROVED: [],
+  //   DENIED: [],
+  // };
+  
   await prisma.validator.updateMany({
     where: {
       validator_id: {
@@ -24,52 +25,40 @@ async function validateTransaction(
       validator_state: "VALIDATING",
     }
   })
+  
   for (const validator of validators) {
-    
-    await fetch(`http://${validator.host}/trans`, {
-      method: "POST",
-      headers: {
-        "content-type": "application/json;charset=UTF-8",
-      },
-      body: JSON.stringify({
-        transaction: transaction,
-        validatorId: validator.validatorId,
-        senderTransactionsCount: senderTransactionsCount,
-      }),
-    })
-      .then((res) => res.json())
-      .then(
-        async (res: {
-          validation: "APPROVED" | "DENIED";
-          transId: string;
-          validatorId: string;
-        }) => {
-          await prisma.validatorTransaction.update({
-            where: {
-              trans_id_validator_id: {
-                trans_id: res.transId,
-                validator_id: res.validatorId,
-              },
-            },
-            data: {
-              validation: res.validation,
-            },
-          });
-          // console.log("\n\n===========================================================================")
-          // console.log("TAMANHO DE VALIDATIONS LENGTH" + validations['APPROVED'].length)
-          validations[res.validation].push(res.validatorId);
+    try {
+      fetch(`http://${validator.host}/trans`, {
+        method: "POST",
+        headers: {
+          "content-type": "application/json;charset=UTF-8",
+        },
+        body: JSON.stringify({
+          transaction: transaction,
+          validatorId: validator.validatorId,
+          senderTransactionsCount: senderTransactionsCount,
+        }),
+      })
+    } catch (error) {
+      console.log(`Error when sending transaction to validator ${validator.host}`)
+      
+      await prisma.validatorTransaction.update({
+        where: {
+          trans_id_validator_id: {
+            trans_id: transaction.trans_id,
+            validator_id: validator.validatorId,
+          }
+        },
+        data: {
+          validation: "FAILED"
         }
-      );
+      })
+    }
   }
-
-  if (
-    validators.length ==
-    validations.APPROVED.length + validations.DENIED.length
-  ) {
-    setTimeout(() => {
-      finishTransaction(transaction, validations);
-    }, 100000)
-  }
+  
+  setTimeout(() => {
+    
+  }, 60000)
 }
 
 async function createValidatorTransactions(
@@ -113,13 +102,7 @@ export async function createTransaction(req: any, res: any) {
     res.status(500).send({ error: "Receiver doesnt exist" });
     return;
   }
-
-  const validators = await selectValidators();
-  if (validators.length == 0) {
-    res.status(500).send({ error: "Error when select validators" });
-    return;
-  }
-
+  
   const transaction = await prisma.transaction.create({
     data: {
       sender_address: remetente,
@@ -134,6 +117,20 @@ export async function createTransaction(req: any, res: any) {
       sender: true,
     },
   });
+  
+  const validators = await selectValidators();
+  if (validators.length == 0) {
+    await prisma.transaction.update({
+      where: {
+        trans_id: transaction.trans_id
+      },
+      data: {
+        trans_state: "DENIED"
+      }
+    })
+    res.status(500).send({ error: "Error when select validators" });
+    return;
+  }
 
   const now = Date.now();
 

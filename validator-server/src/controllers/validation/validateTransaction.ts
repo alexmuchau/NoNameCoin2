@@ -21,14 +21,14 @@ interface AddressProps {
 }
 
 export async function sendValidation(trans_id:string, validator_id:string, validation: 'APPROVED' | 'DENIED') {
-    await fetch('http://selector_server:4100/trans/validation', {
+    await fetch('http://selector_server:4100/trans/validate', {
         method: 'POST',
         headers: {
             'content-type': 'application/json;charset=UTF-8',
         },
         body: JSON.stringify({
-            trans_id: trans_id,
-            validator_id: validator_id,
+            transId: trans_id,
+            validatorId: validator_id,
             validation: validation
         })
     })
@@ -39,17 +39,20 @@ export async function validateTransaction(req: any, res: any) {
   const validatorId: string = req.body.validatorId;
   const senderTransactionsCount: number = req.body.senderTransactionsCount;
 
-  const randomTimeout = Math.random() * 150000000000;
+  const timeout = 3000000000 * 2;
   let i = 0
   
-  printHeader(`Validando transação ${transaction.trans_id}... ${randomTimeout}`);
+  printHeader(`Validando transação ${transaction.trans_id}... ${timeout}`);
   
-  // while (i < randomTimeout) {
-  //   i++
-  // }
+  const before = Date.now()
+  while (i < timeout) {
+    i++
+  }
+  const after = Date.now()
+  console.log((after - before)/1000)
   
   if (senderTransactionsCount > 1000) {
-    // await sendValidation(transaction.trans_id, validatorId, "DENIED")
+    await sendValidation(transaction.trans_id, validatorId, "DENIED")
     res.send({
       validation: "DENIED",
       transId: transaction.trans_id,
@@ -63,7 +66,7 @@ export async function validateTransaction(req: any, res: any) {
     transaction.trans_coins + transaction.trans_tax >
     transaction.sender.coins_in_stock
   ) {
-    // await sendValidation(transaction.trans_id, validatorId, "DENIED")
+    await sendValidation(transaction.trans_id, validatorId, "DENIED")
     res.send({
       validation: "DENIED",
       transId: transaction.trans_id,
@@ -74,7 +77,7 @@ export async function validateTransaction(req: any, res: any) {
   }
 
   if (transaction.trans_timestamp > MY_TIME) {
-    // await sendValidation(transaction.trans_id, validatorId, "DENIED")
+    await sendValidation(transaction.trans_id, validatorId, "DENIED")
     res.send({
       validation: "DENIED",
       transId: transaction.trans_id,
@@ -85,11 +88,10 @@ export async function validateTransaction(req: any, res: any) {
   }
 
   printFooter("Transação validada com sucesso!");
+  await sendValidation(transaction.trans_id, validatorId, "APPROVED")
   res.send({
     validation: "APPROVED",
     transId: transaction.trans_id,
     validatorId: validatorId,
   });
-
-  // await sendValidation(transaction.trans_id, validatorId, "APPROVED")
 }

@@ -1,5 +1,6 @@
 import { checkClock } from "./controllers/check/clockCheck";
 import createServer from "./server";
+import { printInit } from "./tools/printFunctions";
 import { validateMe } from "./validateMe";
 
 export const HOST = process.env.HOST;
@@ -30,6 +31,8 @@ async function checkValidator(host: string) {
 }
 
 async function initValidator() {
+  printInit("INICIANDO VALIDADOR -> HOST:" + HOST)
+  
   const app = createServer();
   app.listen({ host: "0.0.0.0", port: 4101 }, (err) => {
     if (err) {

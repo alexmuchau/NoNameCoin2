@@ -1,6 +1,7 @@
 import requests
 import random
 from datetime import datetime
+from time import sleep
 
 addresses = requests.get('http://localhost:4100/address').json()
 
@@ -18,3 +19,5 @@ for i in range(0, 20):
     
     print(f"[{payload['horario']}] ({i}) - {sender} -> {receiver} | Mandando {payload['valor']} moedas")
     res = requests.post('http://localhost:4100/trans', json=payload, headers={"Content-type": "application/json"})
+    
+    sleep(2)
